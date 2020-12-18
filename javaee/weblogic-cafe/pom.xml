@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>weblogic-cafe</artifactId>
 	<groupId>weblogic-cafe</groupId>
@@ -10,7 +9,7 @@
 	<name>${project.artifactId}</name>
 	<description>This is the basic Java EE application used throughout the WebLogic on Azure demos.
         It is a simple CRUD application. It uses Maven and Java EE 7 (JAX-RS, EJB, CDI, JPA, JSF, Bean Validation).
-    </description>
+	</description>
 	<properties>
 		<javaee.api.version>7.0</javaee.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,6 +22,40 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>deploy-wls</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.oracle.weblogic</groupId>
+						<artifactId>weblogic-maven-plugin</artifactId>
+						<version>12.1.2-0-0</version>
+						<configuration>
+							<adminurl>${adminVMDNS}:7001</adminurl>
+							<user>${wlsUserName}</user>
+							<password>${wlsPassword}</password>
+							<upload>true</upload>
+							<targets>cluster1</targets>
+							<action>deploy</action>
+							<remote>false</remote>
+							<verbose>true</verbose>
+							<source>${project.build.directory}/${project.build.finalName}.${project.packaging}</source>
+							<name>${project.build.finalName}</name>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>deploy</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
@@ -43,6 +76,30 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.oracle.weblogic</groupId>
+				<artifactId>weblogic-maven-plugin</artifactId>
+				<version>12.2.1-0-0</version>
+			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>maven.oracle.com</id>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<url>https://maven.oracle.com</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven.oracle.com</id>
+			<url>https://maven.oracle.com</url>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
