@@ -76,3 +76,4 @@ jobs:
         run: |
           echo "deploy the web app"
           mvn -DskipTests -s weblogic-on-azure/javaee/weblogic-cafe/.mvn/local-settings.xml -Dmaven.wagon.httpconnectionManager.ttlSeconds=3600 install -Pdeploy-wls -DadminVMDNS=${adminVMDNS} -DwlsUserName=${wlsUserName} -DwlsPassword=${wlsPassword} --file weblogic-on-azure/javaee/weblogic-cafe/pom.xml
+          
