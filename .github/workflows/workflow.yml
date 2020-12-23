@@ -48,7 +48,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('weblogic-on-azure/javaee/weblogic-cafe/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('weblogic-on-azure/javaee/weblogic-cafe/pom.xml') }}-${{ hashFiles('weblogic-on-azure/javaee/weblogic-cafe/.mvn/local-settings.xml') }}
             
       - name: Maven build the web app
         id: maven-build-webapp
@@ -76,4 +76,3 @@ jobs:
         run: |
           echo "deploy the web app"
           mvn -DskipTests -s weblogic-on-azure/javaee/weblogic-cafe/.mvn/local-settings.xml -Dmaven.wagon.httpconnectionManager.ttlSeconds=3600 install -Pdeploy-wls -DadminVMDNS=${adminVMDNS} -DwlsUserName=${wlsUserName} -DwlsPassword=${wlsPassword} --file weblogic-on-azure/javaee/weblogic-cafe/pom.xml
-          
