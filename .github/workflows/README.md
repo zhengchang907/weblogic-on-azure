@@ -83,7 +83,7 @@ To integrate with Github workflow, **[action/cache](https://github.com/actions/c
 ## Best practice
 * When your workflow is running on a lower frequency or the web app changes a lot(may cause the caching doesn't help), using REST API could save some of your efforts.
 * But when you focus is validating the deployment at a high frequency and a rather stable web app, it's worth it using the WebLogic Maven Plugin to save your time.
-## Referrence
+## Reference
 * [Deploy Domain-Scoped Applications using REST API(WebLogic Management Services)](https://docs.oracle.com/middleware/1221/wls/WLRUR/examples.htm#WLRUR200)
 * [How to create project specific maven setting](https://stackoverflow.com/questions/43156870/create-project-specific-maven-settings)
 * [How to use WebLogic Maven Plugin for deployment](https://ruleoftech.com/2014/using-the-weblogic-12c-maven-plug-in-for-deployment)
