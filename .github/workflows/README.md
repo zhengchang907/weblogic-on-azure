@@ -1,5 +1,5 @@
 # Deploy web app to remote WebLogic cluster running on Azure VMs in Github workflow
-## Using REST API
+## Using REST API(WebLogic Management Services)
 A simple Curl will do the work
 ```
 curl -v \
