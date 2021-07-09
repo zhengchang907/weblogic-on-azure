@@ -126,7 +126,7 @@ Ensure that the deployment action from Eclipse will target the WebLogic Cluster 
 * In the azure portal go to 'All resources'. Enter `<your suffix>` into the filter box and press enter.
 * Find and click weblogic-cafe-group-`<your suffix>`.
 *  Under Settings, open Deployments panel.
-   * Scroll down and find deployment whose name starts with something like `microsoft_javaeeonazure_test.20200123-edburns-02-`, click the deployment.
+   * Scroll down and find deployment whose name starts with something like `microsoft_javaeeonazure_test`, click the deployment.
    * Click Outputs
    * Copy appGatewayURL. The application will be available at `<appGatewayURL>`/weblogic-cafe.
 

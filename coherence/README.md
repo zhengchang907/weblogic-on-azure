@@ -3,8 +3,9 @@ This demo shows how you can deploy a Java EE application with Coherence to Azure
 ## Setup
 
 * Install the latest version of Oracle JDK 8 (we used [8u291](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)).
+* Install [the 2020-06 release of Eclipse for Enterprise Java Developers](https://www.eclipse.org/downloads/packages/release/2020-06/r/eclipse-ide-enterprise-java-developers) (this is the latest Eclipse IDE version that supports Java SE 8).
+* Install WebLogic 12.2.1.3 (note - not the latest version) using the Quick Installer by downloading it from [here](https://www.oracle.com/middleware/technologies/weblogic-server-downloads.html). You need this locally even if you are not running WebLogic locally because the Eclipse WebLogic deployment support needs it.
 * Install the Window Subsystem for Linux (or other Linux, we used [WSL 2 with Ubuntu 18.04 LST](https://docs.microsoft.com/en-us/windows/wsl/install-win10)).
-* Install Maven in your WSL
 * Download this repository somewhere in your WSL file system (easiest way might be to download as a zip and extract).
 * You will need an Azure subscription. If you don't have one, you can get one for free for one year [here](https://azure.microsoft.com/en-us/free).
 
@@ -89,24 +90,48 @@ The next step is to get a WebLogic cluster up and running. Follow the steps belo
 * It will take some time for the WebLogic cluster to properly deploy (could be up to an hour). Once the deployment completes, in the portal go to 'All resources'.
 * Find and click on adminVM. Copy the DNS name for the admin server. You should be able to log onto http://`<admin server DNS name>`:7001/console successfully using the credentials above.  If you are not able to log in, you must troubleshoot and resolve the reason why before continuing.
 * Find and click on myAppGateway. Copy the DNS name for the Application Gateway as `<app gateway DNS>`.
-* Find and click on wls-nsg. In the Overview page, find `WebLogicManagedChannelPortsDenied` under the Inbound Security Rules, click on it. In the pop window, select `Allow` for Action and click `Save`, wait for the update to be completed.
+* Find and click on wls-nsg. In the Overview page, find `WebLogicManagedChannelPortsDenied` under the Inbound Security Rules, click on it. In the pop window, select `Allow` for Action and click `Save`, wait for the update to be completed. This will open portal 8501 which we will use later.
 
-## Prepare WebLogic-Cafe App
-* Open a command line window of WSL and cd to `<your path to the repo>/weblogic-on-azure/clusterwithcoherence/weblogic-cafe`.
-* Run "mvn clean install", a `weblogic-cafe.war` file will be generated in /target directory.
+## Setting Up WebLogic in Eclipse
+The next step is to get the application up and running.
 
-## Deploy above apps from WebLogic Admin Console
-* Go to `<admin server DNS name>:7001/console`
-* Signin with Username=`weblogic`, Password=`Secret123456`
-* Click `Deployment` in "Domain Structure" window.
-* Click `Lock & Edit` in "Change Center" window.
-* Click `Install` in "Summary of Deployments" window, "Configuration" tab.
-* Click `Upload your file(s)` and select weblogic-cafe.jar file built in the previous step.
-* Accept default deployment settings by accepting default values and clicking `Next` button, when it comes to the "Select deployment targets' window, select `cluster1`
-* Accept default deployment settings by accepting default values and clicking `Next` until you click `Finish`
-* Click `Activate Changes` in the "Change Center" window
-* Click `Deployment` in "Domain Structure" window, and select `Control` tab on the right, verify that all apps are in `Prepared` state.
-* Click the checkbox on the left of `Name` to select all apps, click `Start` -> `Servicing all requests`
+* Start Eclipse.
+* If you have not yet installed the Oracle WebLogic Server Tools, do so now.
+   * Go to the 'Servers' panel, secondary click. Select New -> Server
+   * Select Oracle -> Oracle WebLogic Server Tools. Click next. Accept the license agreement, click 'Finish'.  Eclipse may ask to be restarted. If so, comply with the request.
+* Go to the 'Servers' panel, secondary click. 
+* Select New -> Server -> Oracle -> Oracle WebLogic Server. Click Next.
+* Choose remote, for the remote host enter `<admin server DNS name>`
+* Enter the WebLogic admin username/password from above.
+* Click "Test connection".  If "Test connection succeeded!" appears, click OK and you may continue.  Otherwise, troubleshoot and resolve the reason for the connection failure.
+* Click 'Finish'.
+
+## Open weblogic-cafe in the IDE
+* Get the weblogic-cafe application into the IDE. In order to do that, go to File -> Import -> Maven -> Existing Maven Projects.  Click Next
+* Then browse to where you have this repository code in your file system and select javaee/weblogic-cafe and click "Open".  
+* Accept the rest of the defaults and click "finish".
+* Once the application loads, you should do a full Maven build by going to the application and secondary clicking -> Run As -> Maven install.
+   * You must see `BUILD SUCCESS` in the Eclipse console in order to proceed.  If you do not, troubleshoot the build problem and resolve it.  Once the application has successfully built, you may continue.
+
+## Deploying the Application
+Ensure that the deployment action from Eclipse will target the WebLogic Cluster running on Azure.
+* Secondary click on the weblogic-cafe in the Project Explorer and choose Properties.
+* Click on "Server" in the left navigation pane.
+* You should see your local and remote WebLogic servers.  Select the cluster one and choose Apply and Close.
+* Go to the 'Servers' panel, find the WebLogic cluster instance, secondary click -> Properties -> WebLogic -> Publishing -> Advanced. 
+* Remove 'admin' as target by clicking on the red X. 
+* Add a new target by clicking green plus.
+   * Click on the little menu icon that appears near the red X and select 'cluster1' in the dialog that appears. Click OK.
+   * Click Apply and close. 
+* Secondary click on weblogic-cafe in the Project Explorer and choose Run As -> Run on Server.  
+   * If a dialog appears saying "Select which server to use", select the cluster one, check the "Always use this server when running this project, and click Finish.
+* Once the application runs, Eclise will try to open it up in a browser. The browser will fail with a 404. This is normal. We delibarately did not deploy the appllication to the admin server.
+* In the azure portal go to 'All resources'. Enter `<your suffix>` into the filter box and press enter.
+* Find and click weblogic-cafe-group-`<your suffix>`.
+*  Under Settings, open Deployments panel.
+   * Scroll down and find deployment whose name starts with something like `microsoft_javaeeonazure_test`, click the deployment.
+   * Click Outputs
+   * Copy appGatewayURL. The application will be available at `<appGatewayURL>`/weblogic-cafe.
 
 ## Link to the Coherence Mbean using JConsole
 The Coherence Mbean server will be started in the oldest member of the cluster, so we need to find it. [JConsole](https://en.wikipedia.org/wiki/JConsole) is a GUI tool that can monitor remote JVM, and it comes for free with JDK.
